@@ -1,0 +1,1635 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Ticket Management API",
+        "description": "API for admin authentication",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/admin/login": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Admin login to generate a token",
+                "description": "Admin Login",
+                "operationId": "adminLogin",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "admin@example.com"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "password123"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged in Successfully"
+                                        },
+                                        "body": {
+                                            "$ref": "#/components/schemas/UserTokenResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid credentials"
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "password": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The password is incorrect."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/api/admin/logout": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Admin logout to revoke token",
+                "description": "Admin Logout",
+                "operationId": "adminLogout",
+                "responses": {
+                    "200": {
+                        "description": "Successful logout",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        },
+                                        "body": {
+                                            "type": "object",
+                                            "example": [
+                                                "Logged out successfully"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/user/verify-email/{id}/{hash}": {
+            "get": {
+                "tags": [
+                    "User - Verification"
+                ],
+                "summary": "Verify user email",
+                "description": "Verify the user's email address using the verification link.",
+                "operationId": "55e073eeedd9b308fed6a18317467771",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "Hash for email verification",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "expires",
+                        "in": "query",
+                        "description": "The dynamically generated expires for the URL",
+                        "required": false,
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "signature",
+                        "in": "query",
+                        "description": "The dynamically generated signature for the URL",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email verified successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Email verified successfully"
+                                        },
+                                        "body": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated - Invalid verification link",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User not authenticated"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "verification": "User not authenticated"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/email/verification-notification": {
+            "post": {
+                "tags": [
+                    "User - Verification"
+                ],
+                "summary": "Resend email verification link",
+                "description": "Resend the email verification link to the user's email address.",
+                "operationId": "4fa2fb0bbb3cfe5280b3f197c86a8c8b",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Email of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "john.doe@example.com"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification email sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Verification email sent successfully"
+                                        },
+                                        "body": {
+                                            "type": "object",
+                                            "example": []
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Email already verified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Email already verified"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "email_already_verified": "Email already verified"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid email"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "email": "Invalid email"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/reset-password": {
+            "post": {
+                "tags": [
+                    "User - Verification"
+                ],
+                "summary": "Reset the user's password",
+                "description": "Reset User Password",
+                "operationId": "f3b11f03b4dfa0a03510f0415e38d4dc",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "user@example.com"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "password",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "newStrongPassword123"
+                        }
+                    },
+                    {
+                        "name": "password_confirmation",
+                        "in": "query",
+                        "description": "Password Confirmation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "newStrongPassword123"
+                        }
+                    },
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "token",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "reset_token_here"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Your password has been reset.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Your password has been reset."
+                                        },
+                                        "body": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid token or email"
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "Invalid token or email"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/forgot-password": {
+            "post": {
+                "tags": [
+                    "User - Verification"
+                ],
+                "summary": "Send a password reset link",
+                "operationId": "acf791f1f91bd885919f80f328226971",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "user@example.com"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Reset link sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "We have emailed your password reset link!"
+                                        },
+                                        "body": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The email field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "email": "The email field is required."
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/tickets": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all tickets",
+                "description": "Retrieve a list of tickets with optional filtering, sorting, and pagination.",
+                "operationId": "169a4fee6118482ca5691e04d6122a55",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Field to sort by",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "created_at"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Sort order (asc or desc)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "asc",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "description": "JSON string for filtering tickets",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": {
+                                "ticket_id": "NQSR1",
+                                "ticket_name": "NQSR1 (#123456)",
+                                "status": "complete",
+                                "user_name": "admin",
+                                "user_email": "admin@example.com",
+                                "user_phone": "01020384566"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of tickets",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data retrieved successfully"
+                                        },
+                                        "body": {
+                                            "$ref": "#/components/schemas/TicketCollection"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "No tickets found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "NO Results Found."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "data": "NO Results Found."
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation failed."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "orderby": "Orderby is not valid"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/tickets/{ticketId}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get a specific ticket",
+                "description": "Retrieve details of a specific ticket by its ID.",
+                "operationId": "de21c6b5486f45675058a8160f0fa4ad",
+                "parameters": [
+                    {
+                        "name": "ticketId",
+                        "in": "path",
+                        "description": "ID of the ticket to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ticket details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data retrieved successfully"
+                                        },
+                                        "body": {
+                                            "$ref": "#/components/schemas/TicketResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Ticket not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "NO Results Found."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "data": "NO Results Found."
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Delete a specific ticket",
+                "description": "Delete a specific ticket by its ID.",
+                "operationId": "c7daa8285d77b9f289349604526e341f",
+                "parameters": [
+                    {
+                        "name": "ticketId",
+                        "in": "path",
+                        "description": "ID of the ticket to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ticket deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ticket deleted successfully"
+                                        },
+                                        "body": {
+                                            "$ref": "#/components/schemas/TicketResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/user/register": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Register a new user",
+                "description": "Register a new user with name, email, password, and optional phone number.",
+                "operationId": "userRegister",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "John Doe"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "user@example.com"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "password123"
+                        }
+                    },
+                    {
+                        "name": "password_confirmation",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "password123"
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "01026354766"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User registered successfully"
+                                        },
+                                        "body": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Invalid Tito ticket",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 403
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No valid Tito ticket found for this email"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "tito_invalid_user": "No valid Tito ticket found for this email."
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation failed"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "email": [
+                                                    "The email field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/login": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Login and generate token",
+                "description": "Authenticate user and generate an access token.",
+                "operationId": "userLogin",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "user@example.com"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "password123"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged in successful"
+                                        },
+                                        "body": {
+                                            "$ref": "#/components/schemas/UserTokenResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid credentials"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "password": [
+                                                    "The password is incorrect."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Email not verified"
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation failed"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "email": [
+                                                    "The email field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/logout": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Logout user",
+                "description": "Revoke all tokens for the authenticated user.",
+                "operationId": "9777707c4228d5113a8f542cec8c8b61",
+                "responses": {
+                    "200": {
+                        "description": "Logged out successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "logged out": "Logged out successfully"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Access denied"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/user/profile": {
+            "get": {
+                "tags": [
+                    "User - Tickets"
+                ],
+                "summary": "Get user profile with tickets",
+                "description": "Retrieve the authenticated user's profile along with their associated tickets.",
+                "operationId": "a89d41894c20f774de86b3c94ba2fd77",
+                "responses": {
+                    "200": {
+                        "description": "User profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data retrieved successfully"
+                                        },
+                                        "body": {
+                                            "$ref": "#/components/schemas/UserTicketsResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data not Found"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "user": "Data not Found"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/user/tickets/{ticketId}": {
+            "get": {
+                "tags": [
+                    "User - Tickets"
+                ],
+                "summary": "Get a specific user ticket",
+                "description": "Retrieve details of a specific ticket by its ID for the authenticated user.",
+                "operationId": "58d56336254c3446bfc7f2beb38efccf",
+                "parameters": [
+                    {
+                        "name": "ticketId",
+                        "in": "path",
+                        "description": "ID of the ticket to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ticket details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data retrieved successfully"
+                                        },
+                                        "body": {
+                                            "$ref": "#/components/schemas/TicketResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Access denied"
+                    },
+                    "404": {
+                        "description": "Ticket not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "fail"
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data not found"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "ticket": "Data not found"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "TicketCollection": {
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TicketResource"
+                        }
+                    },
+                    "pagination": {
+                        "properties": {
+                            "current_page": {
+                                "type": "integer"
+                            },
+                            "last_page": {
+                                "type": "integer"
+                            },
+                            "per_page": {
+                                "type": "integer"
+                            },
+                            "total": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "TicketResource": {
+                "properties": {
+                    "ticket_id": {
+                        "type": "string",
+                        "example": "SQV2"
+                    },
+                    "ticket_name": {
+                        "type": "string",
+                        "example": "SQV2 (#123765)"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "void",
+                            "complete",
+                            "incomplete"
+                        ],
+                        "example": "complete"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-10T12:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-10T12:00:00Z"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object"
+            },
+            "UserTicketsResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "01026354766"
+                    },
+                    "email_verified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-10T12:00:00Z"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-10T12:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-10T12:00:00Z"
+                    },
+                    "tickets": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TicketResource"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "UserTokenResource": {
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                        "type": "string",
+                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    },
+                    "token_type": {
+                        "type": "string",
+                        "example": "Bearer "
+                    },
+                    "expires_in": {
+                        "type": "integer",
+                        "example": 1234567
+                    }
+                },
+                "type": "object"
+            },
+            "ForbiddenResponse": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "fail"
+                    },
+                    "code": {
+                        "type": "integer",
+                        "example": 403
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "User is not authorized."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "example": {
+                            "unauthorized": "User is not authorized."
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "01026354766"
+                    },
+                    "email_verified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-10T12:00:00Z"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-10T12:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-10T12:00:00Z"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "responses": {
+            "403": {
+                "description": "Forbidden"
+            },
+            "404": {
+                "description": "Ticket not found",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "status": {
+                                    "type": "string",
+                                    "example": "fail"
+                                },
+                                "code": {
+                                    "type": "integer",
+                                    "example": 404
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "example": "NO Results Found."
+                                },
+                                "errors": {
+                                    "type": "object",
+                                    "example": {
+                                        "data": "NO Results Found."
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Admin",
+            "description": "Endpoints for admin authentication & ticket management"
+        },
+        {
+            "name": "User",
+            "description": "Endpoints for user profile and ticket management"
+        },
+        {
+            "name": "User - Verification",
+            "description": "User - Verification"
+        },
+        {
+            "name": "User - Tickets",
+            "description": "User - Tickets"
+        }
+    ]
+}
