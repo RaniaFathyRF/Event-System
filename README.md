@@ -105,7 +105,7 @@ Update the following configurations in `.env`:
     DB_PASSWORD=root_password
     ```
 - **APP Configuration**
-  ```
+  ```env
     APP_ENV=local
     APP_KEY=base64:fg81E9/m+/VCTY15CeI2rQRyj5zbkqbMhUI6oHxTwKA=
     APP_DEBUG=true
@@ -119,32 +119,32 @@ Update the following configurations in `.env`:
     VITE_APP_NAME="${APP_NAME}"
   ```
 - **Logs Configuration**
-    ```
-      LOG_CHANNEL=stack
-      LOG_STACK=single
-      LOG_DEPRECATIONS_CHANNEL=null
-      LOG_LEVEL=debug
-    ```
+  ```env
+    LOG_CHANNEL=stack
+    LOG_STACK=single
+    LOG_DEPRECATIONS_CHANNEL=null
+    LOG_LEVEL=debug
+  ```
 - **Queue Configuration**
-    ```
-      BROADCAST_CONNECTION=log
-      FILESYSTEM_DISK=local
-      QUEUE_CONNECTION=database
-    ```
+  ```env
+    BROADCAST_CONNECTION=log
+    FILESYSTEM_DISK=local
+    QUEUE_CONNECTION=database
+  ```
 - **Mail Configuration**
-    ```
-       MAIL_MAILER=smtp
-       MAIL_HOST=smtp.gmail.com  # Change this based on your provider
-       MAIL_PORT=587
-       MAIL_USERNAME=example@gmail.com
-       MAIL_PASSWORD={mail password}
-       MAIL_ENCRYPTION=tls
-       MAIL_FROM_ADDRESS=example@gmail.com
-       MAIL_FROM_NAME={app name}
-    ```
+  ```env
+    MAIL_MAILER=smtp
+    MAIL_HOST=smtp.gmail.com  # Change this based on your provider
+    MAIL_PORT=587
+    MAIL_USERNAME=example@gmail.com
+    MAIL_PASSWORD={mail password}
+    MAIL_ENCRYPTION=tls
+    MAIL_FROM_ADDRESS=example@gmail.com
+    MAIL_FROM_NAME={app name}
+  ```
 
 - **Redis Configuration**
-  ```
+  ```env
     CACHE_STORE=database
     MEMCACHED_HOST=127.0.0.1
     REDIS_CLIENT=phpredis
@@ -171,13 +171,13 @@ Update the following configurations in `.env`:
     - **TITO_WEBHOOK_SECRET**: Create new webhook endpoint from Settings > Webhook Endpoints
       Copy your security token from there and paste it here.
 
-    ```
-       TITO_API_KEY=your_tito_api_token
-       TITO_API_BASE=https://api.tito.io/v3
-       TITO_API_ACCOUNT=your_tito_account_slug
-       TITO_API_EVENT=your_tito_event_slug
-       TITO_WEBHOOK_SECRET=your_webhook_secret_here
-    ```
+  ```env
+    TITO_API_KEY=your_tito_api_token
+    TITO_API_BASE=https://api.tito.io/v3
+    TITO_API_ACCOUNT=your_tito_account_slug
+    TITO_API_EVENT=your_tito_event_slug
+    TITO_WEBHOOK_SECRET=your_webhook_secret_here
+```
 
 ---
 
