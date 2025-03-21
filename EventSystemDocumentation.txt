@@ -1,0 +1,1191 @@
+
+Documentation for the Event System Project (Including Filament Dashboard)
+
+Overview
+The Event System is a Laravel-based project designed to handle webhook processing, ticket synchronization, user authentication, and event-based workflows. The project integrates multiple Laravel features, custom jobs, controllers, and API resources to manage tickets and users effectively. Additionally, the project includes a Filament-powered dashboard for streamlined management and visualization.
+
+Project Structure
+Controllers: Handles HTTP request logic for the application.
+Jobs: Executes background processes (ticket synchronization, webhook processing).
+Models: Represents the database structure used in the application.
+Resources: Defines how data is presented via APIs.
+Services: Includes reusable business logic components.
+Filament Dashboard: A custom-built admin panel for managing event-related data using Filament.
+Console Commands: Implements CLI commands for maintenance tasks like ticket synchronization.
+
+Filament Dashboard
+Overview
+The project utilizes Filament to provide a modern admin dashboard for managing tickets, users, and system configurations efficiently. Filament is a Laravel-based admin panel library that allows the rapid development of user-friendly interfaces.
+Features of the Dashboard
+Ticket Management: Displays data about tickets and provides CRUD functionality.
+User Management: Offers tools to manage users and their related data.
+Logs: Provides access to logs generated during webhook handling and ticket processing.
+Custom Widgets: Displays insights such as the number of webhooks processed or tickets synced.
+Relevant Files
+Filament resources for managing tickets and users:
+/home/mramadan/event-system/app/Filament/Resources/TicketResource.php
+Dependencies included in composer.json:
+
+"filament/filament": "^3.0"
+
+
+Controllers Documentation
+1. TitoWebhookController
+   Responsible for handling webhooks sent by Tito. Features include:
+   Validating webhook payloads.
+   Security checks via signature verification.
+   Distributing the data to jobs for further processing.
+   Key Methods:
+   handleWebhook: Validates and processes incoming webhook payloads.
+   verifySignature: Ensures the authenticity of webhook requests.
+   processTicket: Dispatches a background job to handle ticket-related operations.
+
+
+
+
+1. AdminAuthController
+   Handles admin authentication, providing functionality for login and logout operations for administrators.
+   Key Methods:
+   login: Authenticates an admin user using credentials.
+   logout: Logs out the authenticated admin.
+   Connected Models:
+   App\Models\User
+
+
+2. TicketController
+   The TicketController manages operations related to tickets, including retrieving, filtering, and deleting tickets, allowed only for admin user.
+
+Key Methods:
+listTickets:
+Fetches a list of tickets, likely paginated or with basic controls, to display ticket data in a tabular format.
+Filters tickets based on various supplied parameters.
+Useful for managing and searching tickets using multiple criteria.
+showTicket:
+Fetches detailed information for a specific ticket, likely used to display ticket details in-depth on a page or modal.
+deleteTicket:
+Deletes a specific ticket from the database.
+Ensures proper validation and permissions before deletion.
+Connected Model(s):
+App\Models\Ticket:
+Represents tickets stored in the system’s database.
+Likely includes relationships to users, events, or other associated models.
+
+5. UserAuthController
+   Manages user-related authentication features including registration, login, and ticket validation.
+   Key Methods:
+   register: Registers a new user.
+   login: Authenticates a user using credentials.
+   logout: Logs out the authenticated user.
+   hasValidTitoTicket: Validates whether the user owns a valid ticket from Tito.
+   Connected Models:
+   App\Models\User
+
+6. UserController
+   Manages user-specific operations such as viewing profile information and showing his tickets.
+   Key Methods:
+   profile: Displays the user's profile information.
+   showUserTicket: Displays tickets associated with the authenticated user.
+   Connected Models:
+   App\Models\User
+   App\Models\Ticket
+
+1. EmailVerificationController
+   This controller likely manages user email verification functionality.
+   Key Responsibilities:
+   Sending email verification links to users' registered email addresses.
+   Handling the verification of tokens sent via email.
+   Marking the user's email as verified in the database.
+   Common Methods:
+   sendVerificationEmail:
+
+
+Sends out an email verification link to the user's email address.
+May generate a unique token or hash for verification purposes.
+Example route: POST /email/verification-notification.
+verifyEmail:
+
+
+Handles the logic for validating the email verification token or hash.
+Marks the email as verified.
+Example route: GET /email/verify/{id}/{hash}.
+resendVerificationLink:
+
+
+Handles logic to resend the verification email for unverified users.
+
+2. NewPasswordController
+   This controller is responsible for setting or updating a user's password.
+   Key Responsibilities:
+   Validating requests to reset the password.
+   Handling setting of new passwords for valid reset requests.
+   Common Methods:
+   store (or resetPassword):
+   Accepts the email, new password, and the token for verification.
+   Validates the token, email, and password, and resets the user's password.
+   Workflow:
+   Accepts a password reset request with a valid token.
+   Verifies token authenticity.
+   Updates the password for the corresponding user.
+
+3.PasswordResetLinkController
+This controller manages the ability to send password reset links to users' email addresses.
+Key Responsibilities:
+Generating and sending a password reset link via email.
+Ensuring the link contains a valid, temporary password reset token.
+Common Methods:
+store (or sendResetLink):
+Accepts the user's registered email address and sends a password reset link if the email exists.
+Generates and stores a unique token associated with the user's email address.
+Workflow:
+User submits their email address.
+Generates a unique, time-limited reset link containing a token.
+Sends the link to the provided email address for the user to reset their password.
+
+Routes Commonly Used:
+Email Verification:
+
+
+POST /email/verification-notification
+GET /email/verify/{id}/{hash}
+Optional: POST /email/resend-verification
+Password Reset Workflow:
+
+
+POST /forgot-password (Handled by PasswordResetLinkController).
+POST /reset-password (Handled by NewPasswordController).
+
+Notes:
+These controllers are a part of Laravel's built-in authentication scaffolding.
+Their structure and methods align with Laravel's default implementation of email verification and password reset flows.
+Make sure middleware such as auth, signed, and throttle are applied to secure these routes properly.
+If you'd like, I can further explore these controllers in your project or add extra details! Let me know.
+
+
+Middleware
+Middleware is used in Laravel to filter HTTP requests entering your application. Below are the identified middleware in your project:
+TimeoutMiddleware:
+
+
+Ensures that specific requests have a time limit to process and may terminate if the limit is exceeded.
+Commonly used to handle performance or prevent long-running tasks.
+EnsureEmailIsVerified:
+
+
+Ensures that a user accessing a specific route has a verified email address.
+Associated with email verification, protecting all routes requiring a verified user.
+AccessAdminPanelMiddleware:
+
+
+Restricts access to the admin panel only to users with necessary permissions or roles.
+Likely checks roles or authorization tokens of the incoming request.
+
+Request Classes
+Request classes in Laravel are used to encapsulate HTTP request validation and authorization logic. If there are specific request files associated with the controllers (EmailVerificationController, NewPasswordController, PasswordResetLinkController), they likely handle validation and security checks for email verification, password resets, etc.
+To confirm and provide exact details, let me know if you'd like assistance locating request-related files or methods.
+
+Resources Documentation
+Resources in Laravel (e.g., API Resource classes like UserResource, TicketResource) are typically stored in the App\Http\Resources directory. They are commonly used to transform models into JSON for API responses in a clean and standardized way.
+
+1. TicketResource
+   Defines the structure for API responses related to tickets. Customizes ticket attributes for cleaner data presentation.
+2. UserResource
+   Defines the structure for API responses related to users, including associations such as tickets.
+
+3. TicketCollection
+   Handles collections of TicketResource
+   The TicketResource could integrate with related resources such as UserResource for assigning users or UserTicketsResource for viewing all tickets created by a user.or TicketCollection to list array of tickets
+4. UserTokenResource
+   Manages token-based responses after authentication.
+
+
+5. UserTicketsResource
+   Customizes and transforms user-specific ticket data.
+
+Enum Documentation:
+1. Http
+   the Http enum provides specific cases for HTTP status codes as readable and type-safe constants. For example, Http::SUCCESS represents the value 200.
+
+Jobs Documentation
+1. ProcessWebhook
+   Handles asynchronous processing of incoming webhook data. Key functions:
+   Takes validated payloads from the Tito webhooks.
+   Processes ticket-related events triggered by the payload.
+   Logs processed data for debugging.
+
+2. SyncTicketJob
+   Synchronizes ticket data from external systems. Features:
+   Queries external APIs for ticket updates.
+   Stores ticket data in the database.
+   Logs results and errors.
+
+
+
+Console Command Documentation
+SyncTickets
+A CLI command that synchronizes tickets from external platforms. Features:
+Ability to schedule recurring ticket syncs via Laravel Scheduler.
+Outputs logs for debugging purposes.
+
+Helper Classes
+
+APIResponse.php
+This class simplifies creating standardized API responses in the system. By extending Symfony's Response class and implementing the Responsable interface, it returns customized HTTP responses easily. It uses the SendsResponse trait.
+Key Features:
+Provides a structured wrapper for API response data such as status, code, message, body, and errors.
+Default values (Success responses are returned by default):
+status: "success"
+code: Http::OK (HTTP 200)
+message: "Request completed successfully"
+body: An empty array/object.
+errors: null.
+Public Properties:
+$status: Response status (e.g., success, fail).
+$code: HTTP status code (using enums like Http for clean representation).
+$message: Response message.
+$body: The data returned in the response.
+$errors: Associated error details when applicable.
+
+UserTicketUtility.php
+
+A utility class providing helper methods for managing users and tickets. It includes user creation, ticket management, and updates for both users and tickets, while logging critical information and errors during the process.
+Key Methods:
+createUser:
+
+
+Takes name, email, phone, and a logChannel as parameters to create a new user.
+Sends a password reset link to the user after creation.
+Logs warnings when required fields are missing.
+createTicket:
+
+
+Creates a new ticket for a user with ticketId, ticketName, state, and logChannel.
+Ensures no duplicate tickets (firstOrCreate is used).
+Logs a warning if required fields are missing.
+updateTicket:
+
+
+Takes a Ticket model, columns, and values to update ticket data dynamically, along with a logChannel.
+Logs success or failure messages.
+updateUser:
+
+
+Similar functionality as updateTicket but applies to User models.
+Logging:
+Uses Laravel's Log facade for detailed logging of errors, warnings, and information.
+Utilities:
+Manages related functionality like assigning roles to users or auto-generating passwords.
+
+ExtraExceptionHandling.php
+This class provides custom error and exception handling for common errors, transforming them into structured API responses. It utilizes the APIResponse helper to maintain consistent response formats across the system.
+Key Methods:
+handleValidationException:
+
+
+Handles ValidationException.
+Returns the validation error messages as an API response with an appropriate HTTP status code (VALIDATION_ERROR).
+handleAuthenticationException:
+
+
+Handles AuthenticationException.
+Returns a fail response indicating the user is unauthenticated (UNAUTHENTICATED).
+handleErrorException:
+
+
+Logs details for ErrorException.
+Delivers detailed error information, including a stack trace, while returning a server error response.
+handleModelNotFoundException:
+
+
+Handles cases where models are not found, such as with ModelNotFoundException.
+Dynamically determines the missing model and provides a descriptive error message.
+handleAccessDeniedHttpException:
+
+
+Handles unauthorized access scenarios like AccessDeniedHttpException.
+Returns a structured FORBIDDEN response.
+handlePostTooLargeException:
+
+
+Handles large payload issues (PostTooLargeException).
+Returns a bad request response with a specific error message.
+handleNotFoundException:
+
+
+Handles NotFoundHttpException.
+Provides a custom "not found" response.
+Logging:
+Logs exceptions when necessary (e.g., for unexpected system errors), aiding debugging.
+Advantages:
+Ensures all exceptions are represented in a unified structure.
+Reduces repetitive exception-handling logic across controllers or services.
+
+
+Models
+The User model has a one-to-many relationship with the Ticket model:
+A single user can manage multiple tickets.
+This is represented by the User::tickets() and Ticket::user() methods in their respective models.
+User.php
+The User model represents the users of the application. It extends Laravel's Authenticatable class, making it compatible with Laravel's authentication system. This model also incorporates several traits for additional functionality.
+Key Features:
+Implements authentication abilities (Authenticatable) such as user login, registration, etc.
+Provides API token management through the HasApiTokens trait.
+Employs the HasRoles trait (Spatie package) for role-based access control.
+Uses the HasFactory trait to work with Laravel's factory-based model seeding.
+Properties:
+$fillable : Defines the attributes that are mass-assignable:
+
+
+name
+email
+phone
+password
+$hidden : Specifies attributes to be hidden from serialization:
+
+
+password
+remember_token
+casts() : Returns attributes that should be typecast:
+
+
+email_verified_at: datetime
+password: hashed (secure storage of passwords).
+Relationships:
+tickets() :
+Defines a one-to-many relationship with the Ticket model.
+Provides access to all tickets associated with a user.
+Utilities:
+Incorporates notification capabilities with the Notifiable trait.
+Suitable for use in systems requiring email verification (MustVerifyEmail interface is referenced but not implemented directly).
+
+Ticket.php
+The Ticket model represents tickets in the application. It includes functionality for soft-deleting records and managing relationships with the User model.
+Key Features:
+Extends Laravel's core Model class.
+Incorporates the HasFactory and SoftDeletes traits for factory creation and soft deletion.
+Properties:
+$fillable : The attributes that are mass-assignable:
+ticket_id
+user_id
+ticket_name
+status
+Relationships:
+user() :
+Defines a belongs-to relationship with the User model.
+Indicates that every ticket is associated with exactly one user.
+Utilities:
+Supports soft deletes for preserving historical data without actually removing records from the database table.
+
+Services:
+
+TitoService.php
+The TitoService class is a service layer helper responsible for interacting with the Tito API to fetch tickets and attendee information. It provides reusable methods for handling requests to Tito while ensuring validation of environment variables and error handling.
+
+Key Features
+Environment Setup:
+The TitoService class initializes and stores key environment variables required to authenticate and access Tito API endpoints:
+apiBase
+apiKey
+apiAccount
+apiEvent
+Error Handling:
+Uses Laravel's validation and exception-handling features, such as:
+ValidationException for invalid environment configurations.
+NotFoundHttpException for failed API responses.
+Wraps all exceptions in a try/catch block for controlled error propagation.
+Retries and Resiliency:
+Handles intermittent API failures by using Laravel's Http::retry() method with:
+3 retry attempts
+1000ms (1 second) delay between retries
+
+Public Methods
+fetchTitoTickets($query):
+Fetches tickets from the Tito API based on the provided query parameters.
+Parameters:
+$query: An optional array of query parameters.
+Key Steps:
+Validates the required Tito environment variables.
+Prepares the query string (if provided) for the API endpoint.
+Sends an API GET request using the bearer token (apiKey) for authentication.
+Parses and returns the response as JSON if successful.
+Error Handling:
+Throws ValidationException if environment variables are invalid.
+Throws NotFoundHttpException for unsuccessful responses.
+fetchAttendeeTickets($email):
+Fetches tickets for a specific attendee based on their email address.
+Parameters:
+$email: The attendee's email address.
+Key Steps:
+Validates the Tito environment variables.
+Appends the email query to the API endpoint.
+Sends an API GET request with authorization using the bearer token.
+Parses and returns the response as JSON if successful.
+Error Handling:
+Similar to fetchTitoTickets, this method checks for invalid configs or failed API calls.
+
+Validation Rules
+Both methods validate the critical Tito environment variables before making API requests. The required fields are:
+apiBase: The base URL for the Tito API (e.g., https://api.tito.io)
+apiKey: A secret key used for API authentication.
+apiAccount: The account name under which events are organized.
+apiEvent: The event slug or identifier.
+If any of these values are missing, a ValidationException is raised.
+
+Utility and Scalability
+Reusable Structure: The service is modular, meaning other API-related actions (e.g., ticket creation, deletion) can easily be added as new methods.
+API Resiliency: By implementing retries, the service ensures a smooth operation even with occasional API downtime.
+Centralized Configuration: Storing API configuration info in config/tito.php (referenced via Laravel's config() helper) ensures that the logic is clean and easily maintainable.
+
+Dependencies
+Laravel Features:
+Http: API requests (GET, authentication, retries).
+Validator: Validation of required API configurations.
+ValidationException: For invalid configs.
+NotFoundHttpException: Indicates failed or unavailable API requests.
+Environment Configuration:
+Requires a config/tito.php file with the following keys:
+apiBase
+apiKey
+apiAccount
+apiEvent
+
+Trait
+This trait is used in classes that extend functionality for API response handling, such as APIResponse. By implementing the Responsable interface (as seen in APIResponse), the trait ensures that the output response conforms to Laravel's expected structure.
+The SendsResponse trait is designed to add functionality for generating consistent responses in classes that utilize it. This trait primarily facilitates the conversion of response data into JSON format, ensuring a structured API response for incoming requests.
+
+Key Features
+Streamlined API Response:
+Automatically packages the response object into a structured JSON format.
+Provides a consistent structure for API responses by including:
+status: The status of the response (e.g., success, fail).
+message: A message describing the response.
+body: The data returned in the response, if any.
+errors: Error details, if any.
+
+Key Method
+toResponse($request): Response:
+Converts the response from the implementing class into a JSON-aligned Response for use in HTTP communications.
+Parameters:
+$request: The incoming HTTP request.
+Return Value:
+A Symfony\Component\HttpFoundation\JsonResponse object containing:
+status: Translated string denoting success or failure.
+message: Localized response message.
+body: The main response data (converted to an object).
+errors: Any associated error details.
+
+
+Dependencies
+Symfony Components:
+JsonResponse and Response: Used to construct and send properly formatted JSON HTTP responses.
+
+
+Advantages
+Consistency: Ensures uniform response formatting across the application.
+Localization: Simplifies internationalization of response messages.
+Reusability: Can be reused in multiple classes for response handling without duplicating code.
+
+Bootstrap:
+The app.php configuration file is a bootstrapper for tailoring the Laravel application setup. It provides configurations for routing, scheduling, middleware management, and exception handling, ensuring that the application is properly configured upon initialization. This file leans heavily on Laravel's fluent configuration API while customizing core components like routing and middleware.
+
+Key Functionalities
+Scheduling:
+Custom scheduling is specified via the withSchedule() method.
+Example Use Case:
+A custom sync:tickets command is scheduled to run every six hours to perform automated ticket synchronization.
+Middleware Management:
+The withMiddleware() method allows the configuration of middleware for the application:
+API Middleware: API middleware can be customized or prepended here.
+Middleware Aliases: Middleware classes are aliased for easy reuse in route definitions, including:
+timeout: Refers to TimeoutMiddleware.
+verified: Refers to EnsureEmailIsVerified middleware.
+Exception Handling:
+The withExceptions() method customizes how exceptions are handled across the application. It specifies custom logic for rendering exceptions, particularly for API responses.
+Custom Mappings:
+Maps specific exception types to methods in the ExtraExceptionHandling helper for unified response formatting.
+Example Mapping:
+AuthenticationException: Handled via handleAuthenticationException in ExtraExceptionHandling.
+ModelNotFoundException: Handled by handleModelNotFoundException.
+And many more, including AccessDeniedHttpException, ValidationException, and NotFoundHttpException.
+
+Detailed Breakdown
+
+Scheduled Commands:
+Uses Laravel's Schedule class to define tasks to be executed at regular intervals.
+Example: Synchronizing data with external systems (e.g., sync:tickets command).
+Middleware System:
+Middleware is organized and managed, allowing dynamic assignment and aliasing:
+API-specific middleware can be defined and adjusted as needed.
+Middleware aliases help simplify route definitions, e.g., using verified for EnsureEmailIsVerified.
+Exception Handling:
+Custom exception handling for API endpoints is provided:
+Allows the application to render API-friendly responses for different exception types.
+Leverages ExtraExceptionHandling to return structured API responses.
+Ensures non-API routes do not use specific exception handlers, maintaining separation of concerns.
+
+Key Dependencies
+Laravel Components:
+Schedule: Handles task scheduling.
+Middleware: Manages route-level middleware assignment.
+Exceptions: Enables centralized exception handling.
+Custom Components:
+Middleware:
+TimeoutMiddleware: Custom middleware likely responsible for managing request timeouts.
+EnsureEmailIsVerified: Middleware to ensure that users' email addresses are verified.
+Helpers:
+ExtraExceptionHandeling: Provides custom exception handling methods for various API exceptions.
+Other Middleware:
+Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful: Used for API stateful authentication (e.g., SPA authentication).
+
+Custom Exception Mappings
+Exception Class
+Handling Method in ExtraExceptionHandling
+AuthenticationException
+handleAuthenticationException
+ModelNotFoundException
+handleModelNotFoundException
+AuthorizationException
+handleAccessDeniedHttpException
+AccessDeniedHttpException
+handleAccessDeniedHttpException
+PostTooLargeException
+handlePostTooLargeException
+ThrottleRequestsException
+handleThrottleRequestsException
+ValidationException
+handleValidationException
+NotFoundHttpException
+handleNotFoundException
+ErrorException
+handleErrorException
+InvalidSignatureException
+handleInvalidSignatureException
+
+
+Example Application Flow
+API Request:
+The request enters the application through a defined route (e.g., api.php).
+Middleware (e.g., EnsureFrontendRequestsAreStateful) is executed.
+Logic Processing:
+Services and controllers process the request based on the assigned logic.
+Errors or Exceptions:
+If an exception is thrown, the custom handlers (defined in withExceptions()) are invoked via ExtraExceptionHandling.
+A structured and API-friendly response is sent back to the client.
+Scheduled Tasks:
+If the sync:tickets command is defined, it will run every six hours without manual intervention.
+
+Advantages of This Structure
+Centralized Configuration:
+Provides a single location to manage application settings, improving maintainability.
+Custom Exception Handling:
+Ensures API routes consistently return structured error responses while leaving web routes unaffected.
+Scalability:
+Supports adding new routes, middleware, and scheduled tasks without cluttering the core logic.
+Error Resilience:
+Retry mechanisms and mappings in ExtraExceptionHandling help mitigate runtime errors gracefully.
+
+Config
+services.php
+
+The services.php file in the config folder is dedicated to managing the credentials and settings for third-party services integrated into the Laravel application. By centralizing service configuration in this file, Laravel provides a conventional approach to handling external integrations in a secure, maintainable, and easy-to-configure manner.
+
+Key Features
+Central Location for Service Credentials:
+Provides a standardized location for configuring various third-party services such as email delivery providers, APIs, and other integrations.
+Environment-Based Configuration:
+Relies on the Laravel env() helper to load sensitive credentials and settings from the .env file. This practice enhances security by separating sensitive information from the application's source code.
+Extensible Design:
+The structure can be easily extended by adding additional service credentials without disrupting existing configurations.
+
+Tito:
+
+
+Used for integrations with the Tito platform (e.g., event tickets, webhooks).
+Configuration:
+apiKey: API key for authenticating Tito API requests (TITO_API_KEY in .env).
+apiBase: Base URI for the Tito API. Defaults to https://api.tito.io/v3 if not configured in .env.
+apiAccount: Tito account name. Pulled from TITO_API_ACCOUNT in .env.
+apiEvent: Tito event slug/name. Pulled from TITO_API_EVENT in .env.
+webhookSecret: Webhook secret used to verify authenticity of incoming Tito event webhooks (TITO_WEBHOOK_SECRET in .env).
+
+Database Seeder Folder Documentation
+These seeders are essential for setting up the application with the fundamental data required for logic or testing purposes.
+
+1. DatabaseSeeder.php
+   Purpose:
+   The main orchestrator for all seeders. It calls individual seeders in the correct order to seed the database.
+   Functionality
+   Method: run()
+   This method executes the RolePermissionSeeder first, followed by the UserSeeder.
+   Ensures that roles and permissions are created before users are seeded because users rely on those roles and permissions.
+   How It Works:
+   Calling Role and Permission Seeder: Runs the RolePermissionSeeder, seeding roles and permissions needed for the application.
+   Calling User Seeder: Runs the UserSeeder to create users with the appropriate roles and permissions.
+
+
+2. RolePermissionSeeder.php
+   Purpose:
+   Seeds the database with default roles and permissions using the Spatie Laravel Permission package. It creates roles like super_admin, admin, and user, and assigns them specific permissions for managing the system.
+   Functionality
+   Roles Created:
+   super_admin
+   admin
+   user
+   Permissions Created:
+   manage all
+   view tickets
+   delete tickets
+   Role-Permission Assignment:
+   super_admin role gets the manage all permission.
+   admin role gets view tickets and delete tickets permissions.
+   user role gets only the view tickets permission.
+   Key Methods Used:
+   Role::findOrCreate():
+   Ensures a role is fetched if it exists or created if it doesn't.
+   Permission::findOrCreate():
+   Similar to Role::findOrCreate(), it ensures that permissions are either fetched or created.
+   Role::givePermissionTo():
+   Assigns specified permissions to a role.
+   How It Works:
+   Roles and permissions are created or fetched if they already exist.
+   Roles are assigned the corresponding permissions based on their function in the system.
+
+
+
+3. UserSeeder.php
+   Purpose:
+   Populates the database with default users, assigns them roles, and ensures the user database is initialized correctly for testing or initial deployment purposes.
+   Functionality
+   Default Users Created:
+   super_admin:
+   Email: super_admin@example.com
+   Password (hashed): password
+   Assigned role: super_admin
+   admin:
+   Email: admin@example.com
+   Password (hashed): password
+   Assigned role: admin
+   user:
+   Email: user@example.com
+   Password (hashed): password
+   Assigned role: user
+   Key Methods Used:
+   User::firstOrCreate():
+   Ensures a user is fetched if it exists or created if it doesn't based on the email.
+   assignRole('role'):
+   Assigns the corresponding role to the user using the Spatie Permission package.
+   How It Works:
+   Check if a user exists with the given email (super_admin@example.com, admin@example.com, user@example.com).
+   If the user doesn’t exist, create it with the provided name and hashed password (bcrypt).
+   Assign the appropriate role (super_admin, admin, or user).
+
+Workflow of Seeder Execution
+When running the DatabaseSeeder, the following steps occur:
+Role and Permission Generation:
+RolePermissionSeeder is executed.
+Roles (super_admin, admin, user) and permissions (manage all, view tickets, delete tickets) are created.
+Roles are assigned their respective permissions.
+User Creation:
+UserSeeder is executed.
+Default users are created and assigned roles.
+For example:
+The super admin user gets the super_admin role and inherits all permissions under that role.
+
+Key Dependencies
+These seeders depend on the following:
+Spatie Laravel Permission Package:
+Used for creating roles, permissions, and assigning roles to users.
+Facilitates access control through roles and permissions.
+User Model:
+Used to create or fetch users in the system (App\Models\User).
+Laravel Seeding Framework:
+Illuminate\Database\Seeder: Base class for seeders.
+php artisan db:seed: Command-line utility for running seeders.
+
+When to Use These Seeders
+Setting Up the Project for the First Time:
+These seeders help establish the application's foundational data (roles, permissions, default users).
+Seeding for Tests:
+The seeders can be invoked while setting up testing environments where seed data is required for role, permission, or user-based test cases.
+Repopulating the Database:
+If the database has been reset or migrated, these seeders can be rerun to repopulate the data.
+
+
+Routes
+api.php
+The api.php file in the routes folder is dedicated to defining API routes for the Laravel application. This file enables the separation of API-specific routes from standard web routes (web.php). These routes typically return JSON responses and are stateless, making them ideal for APIs consumed by mobile or web-based clients.
+
+
+Purpose
+Define API Routes:
+Contains all the endpoints available for use in API-based communications within the application.
+Encapsulation of Middleware:
+Applies middleware for functionalities like authentication, rate-limiting, email verification, and session handling.
+Organization by Feature:
+Groups routes into logical sections such as Admin Authentication, User Authentication, User Profiles, and Webhooks for better maintainability and readability.
+
+Structure Overview
+The api.php file uses Laravel's Routing System with the following features:
+Admin Authentication Routes:
+Includes login, logout, and ticket management for administrators.
+Protected by auth:sanctum middleware for authentication.
+User Authentication Routes:
+Covers registration, login, password reset, and email verification for regular users.
+Includes routes for initial authentication flows as well as email verification.
+User Profile Routes:
+Provides authenticated users with endpoints for managing their profiles and fetching ticket information.
+Enforces security using auth:sanctum middleware.
+Tito Webhook Route:
+Provides a dedicated route for handling webhook events from Tito, specifically for listening to ticketing-related updates.
+
+Route Groups and Middleware
+1. Admin Authentication
+   Endpoints:
+   Admin Login:
+   /admin/login – Allows administrators to log in.
+   Middleware:
+   timeout: Ensures the request completes within a specified time frame.
+   throttle:6,1: Limits requests to 6 attempts per minute to prevent abuse.
+   Protected Admin Routes:
+   Utilizes the following endpoints, protected by auth:sanctum, timeout, and throttle:6,1 middleware:
+   /admin/tickets: Fetch a list of tickets.
+   /admin/tickets/{ticketId} (GET): Fetch details of a specific ticket.
+   /admin/tickets/{ticketId} (DELETE): Delete a specific ticket.
+   /admin/logout: Logout the administrator.
+2. User Authentication
+   Endpoints:
+   /user/register: Allows users to register.
+   /user/login: Allows users to log in.
+   /user/forgot-password: Sends a password reset link.
+   /user/reset-password: Allows users to reset their password.
+   Email Verification:
+   /user/verify-email/{id}/{hash}: Verifies the user's email address. Requires the signed middleware for secure access.
+   /user/email/verification-notification: Resends the email verification link.
+   Middleware:
+   timeout: Ensures the request completes within a specified time.
+   throttle:6,1: Throttles requests to limit abuse.
+3. User Profile
+   Endpoints:
+   /user/profile: Fetches the authenticated user's profile.
+   /user/tickets/{ticketId}: Fetches a specific ticket associated with the user.
+   /user/logout: Logs out the user.
+   Middleware:
+   auth:sanctum: Ensures the user is authenticated using Laravel Sanctum.
+   timeout: Completes the request in a given time frame.
+   throttle:6,1: Limits excessive API requests.
+4. Tito Webhook
+   Endpoint:
+   /tito-webhook: Allows the application to handle incoming events from Tito (a ticketing platform).
+   For example, the webhook may handle event updates like ticket purchases or cancellations.
+   Middleware: None explicitly defined for this route, but it could be implemented if needed for security purposes (like validation of signed webhook requests).
+
+Middleware Usage
+auth:sanctum:
+Ensures only authenticated users or administrators can access certain routes.
+timeout:
+Imposes a request execution duration to optimize resource usage and prevent long-running requests.
+throttle:6,1:
+Provides rate-limiting (6 requests per minute) to protect the API from abuse.
+signed:
+Ensures the validity of URLs, particularly for email verification links.
+
+API Design Principles in This File
+Stateless Communication:
+API routes in api.php ensure that each request is treated independently, making them ideal for use in stateless clients such as mobile apps or SPAs (Single Page Applications).
+Middleware-based Security:
+Rate Limiting: Prevents abuse of endpoints by using the throttle middleware.
+Authentication: Secures sensitive data and functionality with auth:sanctum.
+RESTful Design:
+Routes are designed following REST principles:
+HTTP verbs (GET, POST, DELETE) are used appropriately.
+URLs are named consistently (e.g., /admin/tickets, /user/tickets/{ticketId}).
+
+.env File Documentation
+The .env file in a Laravel application plays a crucial role in configuring application settings. It contains key-value pairs for environment-specific settings, ensuring that sensitive credentials and environment configurations are decoupled from the source code. This file is critical for maintaining flexibility and security in development, staging, and production environments.
+
+Purpose
+Environment-Specific Configuration:
+Provides an efficient way to adjust settings (e.g., database credentials, API keys, application URLs) for different environments without changing the codebase.
+Security:
+Keeps sensitive data (like API keys, database credentials, and mail server information) separate from the code by not including it in version control.
+Decoupling:
+Centralizes all application environment-specific variables to make configuration changes easier.
+
+Key Sections of the File
+1. App Settings
+   APP_NAME:
+   Sets the name of the application.
+   Example: Laravel.
+   APP_ENV:
+   Specifies the current application environment. Common values:
+   local (for development)
+   staging
+   production
+   APP_KEY:
+   Used for encryption and hashing. Generate using php artisan key:generate.
+   APP_DEBUG:
+   Boolean (true or false) to toggle debug mode:
+   true: Displays detailed error messages (useful for development).
+   false: Hides error details for security (useful in production).
+   APP_URL:
+   Defines the base URL for the application.
+   APP_LOCALE and APP_FALLBACK_LOCALE:
+   Sets the default and fallback locales for the application.
+
+2. Database Configuration
+   DB_CONNECTION:
+   Specifies the database driver to be used. Common options: mysql, pgsql, sqlite.
+   DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD:
+   These values configure the database connection details:
+   DB_HOST: Host address of the database server (e.g., 127.0.0.1 or db in Docker).
+   DB_PORT: Port to connect to the database (default for MySQL is 3306).
+   DB_DATABASE: Name of the database to use.
+   DB_USERNAME: User to connect to the database.
+   DB_PASSWORD: Password for the database user.
+
+3. Session Configuration
+   SESSION_DRIVER:
+   Specifies the session driver to use (e.g., file, cookie, database, etc.).
+   SESSION_LIFETIME:
+   Determines how many minutes a session remains active before expiring.
+   SESSION_ENCRYPT:
+   Specify whether user sessions should be encrypted (true or false).
+
+4. Mail Configuration
+   MAIL_MAILER:
+   Defines the mail transport to use. Examples: smtp, sendmail, log.
+   MAIL_HOST, MAIL_PORT:
+   Host and port for the mail server. For instance:
+   smtp.gmail.com for Gmail.
+   127.0.0.1 for a local mail server.
+   MAIL_USERNAME and MAIL_PASSWORD:
+   Credentials for the mail server.
+   MAIL_ENCRYPTION:
+   Encryption type for sending emails securely. Common values:
+   tls
+   ssl
+   MAIL_FROM_ADDRESS and MAIL_FROM_NAME:
+   Default sender email address and name used for outgoing emails.
+
+5. Cache and Queue Configuration
+   Cache:
+   CACHE_STORE: Defines the cache driver (e.g., file, database, redis).
+   CACHE_PREFIX: Optional prefix used for cache keys.
+   Queue:
+   QUEUE_CONNECTION: Specifies which queue connection to use (e.g., sync, database, redis).
+
+6. Storage and Filesystem
+   FILESYSTEM_DISK:
+   Specifies the default disk for storing files (e.g., local, s3).
+
+7. Logging Configuration
+   LOG_CHANNEL:
+   Specifies the logging channel (e.g., stack, single, daily).
+   LOG_LEVEL:
+   Sets the logging level of the application. Common values:
+   debug
+   info
+   notice
+   warning
+   error
+   critical
+   alert
+   emergency
+
+8. External API and Service Configuration
+
+Tito API (Ticketing Service):
+TITO_API_KEY: API key to authenticate requests to Tito's API.
+TITO_API_BASE: Base URL for the Tito API.
+TITO_API_ACCOUNT: Name of the Tito account.
+TITO_API_EVENT: Default event slug or identifier in Tito.
+TITO_WEBHOOK_SECRET: Secret key for verifying webhook requests received from Tito.
+
+9. Redis Configuration
+   REDIS_CLIENT:
+   Specifies which Redis client to use (e.g., phpredis, predis).
+   REDIS_HOST, REDIS_PORT, REDIS_PASSWORD:
+   Host, port, and password for the Redis server.
+
+10. PHP Debug Server (Optional)
+    PHP_CLI_SERVER_WORKERS:
+    Specifies the number of workers for the built-in PHP CLI server.
+
+Sensitive Data and Security
+Data Separation:
+Critical credentials like DB_PASSWORD, AWS_SECRET_ACCESS_KEY, and MAIL_PASSWORD should only exist in the .env file and not be hardcoded elsewhere in the application.
+Version Control Best Practices:
+The .env file should be excluded from version control using the .gitignore file. Only the .env.example file (a template for environment variables) should be included in the repository for teams to use as a guide.
+Environment-Specific Configurations:
+Use different .env files for development, staging, and production (e.g., .env.local, .env.staging, and .env.production).
+Use env() Helpers:
+Access environment variables via the env() helper in the configuration files.
+
+Docker Configuration Documentation
+This documentation provides an overview of the Docker configuration files used in the Laravel application stack, including docker-compose.yml, Dockerfile, and supervisord.conf. These configurations allow for containerized development, testing, and hosting of the Laravel application.
+
+1. docker-compose.yml
+   Purpose:
+   The docker-compose.yml file defines the multi-container Docker environment for the Laravel application. It orchestrates the services required for the app, such as the Laravel app container, database server, Nginx web server, queue workers, and the scheduler.
+   Key Components
+   Services:
+   Defines the containers that make up the Laravel stack.
+   app Service:
+   Builds the Laravel application using the Dockerfile.
+   Sets the working directory (/var/www/html) and synchronizes it with the host files.
+   Executes Supervisord to manage processes like PHP-FPM and workers.
+   scheduler:
+   Responsible for running Laravel's scheduler (via schedule:work).
+   Depends on the app and db services.
+   db Service:
+   Uses the mysql:8 image to set up the database server.
+   Environment variables configure credentials and database-specific settings.
+   Mounts a volume (db_data) to persist database data.
+   nginx Service:
+   Acts as the web server.
+   Serves the Laravel application from the app container.
+   Mounts an Nginx configuration file (default.conf) to map /var/www/html to the container's Nginx configuration.
+   queue Service:
+   Runs Laravel's queue workers using Supervisord.
+   Processes asynchronous tasks specified in the Laravel app.
+   Networks:
+   Uses a bridge network (laravel_network) for communication between the containers.
+   Volumes:
+   Defines a named volume (db_data) to persist MySQL data.
+   Common Commands
+   Start containers:
+
+docker-compose up -d
+
+Stop containers:
+
+docker-compose down
+
+View logs:
+
+docker-compose logs -f
+
+
+2. Dockerfile
+   Purpose:
+   The Dockerfile defines the build process for the Laravel application container. It sets up the PHP environment with the necessary dependencies for Laravel, installs Composer, and prepares the container to run Laravel efficiently.
+   Key Steps
+   Base Image:
+   Uses php:8.2-fpm as the base image.
+   Provides a lightweight and flexible PHP-FPM environment for running Laravel.
+   Working Directory:
+   Sets the working directory inside the container to /var/www/html.
+   System Dependencies:
+   Installs essential tools and libraries for Laravel, such as:
+   supervisor to manage processes for queues and workers.
+   PHP extensions like gd, pdo_mysql, mbstring, zip, etc., required for Laravel functionality.
+   Composer Installation:
+   Copies Composer from the official Composer image to provide package management for Laravel.
+   Project Files:
+   Copies the existing project files from the host to the container.
+   Permissions and Laravel Dependencies:
+   Sets proper permissions for the Laravel storage and bootstrap directories.
+   Runs composer install to install Laravel dependencies.
+   Supervisor Configuration:
+   Creates a directory for Supervisor configurations and copies the supervisord.conf file for managing additional processes (e.g., queue workers).
+   Exposed Port:
+   Exposes port 9000 for communication between Nginx and PHP-FPM.
+   Startup Command:
+   Starts Supervisor when the container is run.
+
+3. supervisord.conf
+   Purpose:
+   The supervisord.conf file is used to configure Supervisord, a process control system. It manages processes like PHP-FPM and Laravel queue workers within the containerized environment.
+   Key Sections
+   [supervisord]:
+   Sets nodaemon=true to prevent Supervisord from running in the background (useful in Docker containers).
+   [program:php-fpm]:
+   Configures PHP-FPM, which handles PHP requests.
+   Ensures PHP-FPM starts automatically on container startup and restarts if it fails.
+   [program:laravel-webhook-worker]:
+   Configures a worker process for Laravel's webhook queue.
+   Runs the queue worker command:
+
+   php /var/www/html/artisan queue:work --queue=webhooks --sleep=3 --tries=3
+
+Key Parameters:
+numprocs: Specifies the number of worker processes (here: 2 workers).
+autorestart: Automatically restarts the workers if they fail.
+stderr_logfile and stdout_logfile: Log files for tracking worker output and errors.
+[program:laravel-syncTickets-worker]:
+Configures a worker process for the syncTickets queue, similar to the webhook worker.
+Runs the queue worker command:
+
+     php /var/www/html/artisan queue:work --queue=syncTickets --sleep=3 --tries=3
+
+Key Parameters:
+numprocs=1: Only a single worker process for this queue.
+Logs output to syncTickets-worker.log.
+
+How the Configuration Works Together
+docker-compose.yml:
+Orchestrates all services, including app, scheduler, db, nginx, and queue.
+Ensures services are networked and properly depend on each other.
+Dockerfile:
+Prepares the PHP environment and Laravel application.
+Installs dependencies and sets up Supervisor for managing processes.
+supervisord.conf:
+Manages background processes like PHP-FPM and Laravel queue workers inside the Docker container.
+
+Execution Flow
+Bringing up the containers:
+When you run:
+
+     docker-compose up -d
+
+- The `app` container builds and starts as defined in the `Dockerfile`.
+- Supervisor starts PHP-FPM and workers in the `app` and `queue` services.
+- The `scheduler` container begins running the Laravel scheduler.
+
+Database Initialization:
+The db service starts a MySQL database container.
+Laravel (app service) connects to it using credentials defined in the docker-compose.yml.
+Web Server:
+The nginx service maps port 8000 on the host to 80 in the container, allowing the application to be accessed at http://localhost:8000.
+Queues and Jobs:
+Supervisor in the app and queue services runs Laravel's queue workers to process asynchronous jobs.
+Scheduler:
+The scheduler service continuously runs Laravel's schedule:work, executing any scheduled commands defined in the Kernel.php.
+
+Common Commands
+Build and Start Services:
+
+docker-compose up --build -d
+
+Stop Services:
+
+docker-compose down
+
+Access a Service: Access the Laravel app container for debugging:
+
+docker exec -it laravel_app bash
+
+Monitor Logs: Check logs for specific services:
+
+docker-compose logs -f app
+
+
+Advantages of This Configuration
+Modular Design:
+Each service (app, database, scheduler, workers, Nginx) is isolated, making it easier to debug, scale, and maintain.
+Process Management with Supervisor:
+Supervisor ensures critical services like PHP-FPM and workers are always running.
+Persistent Storage:
+MySQL database data is stored in a Docker volume (db_data), ensuring persistence even if the container restarts.
+Development Convenience:
+Code changes on the host are automatically reflected in the container via volume mounting.
+Scalable:
+Multiple workers can be configured using numprocs in supervisord.conf.
+
+Logging and Validation
+Logs: Generated for key workflows, including webhook processing and ticket synchronization.
+Validation: Custom rules (like those defined in UserResendEmailVerificationRequest) ensure incoming data is sanitized and verified.
+
+Workflow Example
+Webhook Processing
+Tito sends a webhook request to the system.
+The request is handled by TitoWebhookController, which:
+Validates the payload based on custom rules.
+Verifies request authenticity using a signature.
+Dispatches the ProcessWebhook job for asynchronous ticket-related operations.
+
+Composer File
+{
+"$schema": "https://getcomposer.org/schema.json",
+"name": "laravel/laravel",
+"type": "project",
+"description": "The skeleton application for the Laravel framework.",
+"keywords": ["laravel", "framework"],
+"license": "MIT",
+"require": {
+"php": "^8.2",
+"darkaonline/l5-swagger": "^8.6",
+"doctrine/annotations": "^2.0",
+"filament/filament": "3.2.131",
+"intervention/image": "^3.10",
+"intervention/image-laravel": "^1.3",
+"lara-zeus/bolt": "^3.0",
+"laravel/framework": "^11.31",
+"laravel/sanctum": "^4.0",
+"laravel/tinker": "^2.9",
+"php-open-source-saver/jwt-auth": "^2.7",
+"spatie/laravel-medialibrary": "^11.11",
+"stevebauman/unfinalize": "^2.1"
+},
+"require-dev": {
+"fakerphp/faker": "^1.23",
+"laravel/pail": "^1.1",
+"laravel/pint": "^1.13",
+"laravel/sail": "^1.26",
+"mockery/mockery": "^1.6",
+"nunomaduro/collision": "^8.1",
+"phpunit/phpunit": "^11.0.1"
+},
+"autoload": {
+"psr-4": {
+"App\\": "app/",
+"Database\\Factories\\": "database/factories/",
+"Database\\Seeders\\": "database/seeders/"
+}
+},
+"unfinalize": [
+"lara-zeus"
+],
+
+
+"autoload-dev": {
+"psr-4": {
+"Tests\\": "tests/"
+}
+},
+"scripts": {
+"post-autoload-dump": [
+"Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+"@php artisan package:discover --ansi",
+"@php artisan filament:upgrade"
+],
+"post-update-cmd": [
+"@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+"@php vendor/bin/unfinalize run"
+],
+"post-root-package-install": [
+"@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+],
+"post-create-project-cmd": [
+"@php artisan key:generate --ansi",
+"@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+"@php artisan migrate --graceful --ansi"
+],
+"post-install-cmd": [
+"@php vendor/bin/unfinalize run"
+],
+"dev": [
+"Composer\\Config::disableProcessTimeout",
+"npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
+]
+},
+"extra": {
+"laravel": {
+"dont-discover": []
+}
+},
+"config": {
+"optimize-autoloader": true,
+"preferred-install": "dist",
+"sort-packages": true,
+"allow-plugins": {
+"pestphp/pest-plugin": true,
+"php-http/discovery": true
+}
+},
+"minimum-stability": "stable",
+"prefer-stable": true
+}
+
+
+
+

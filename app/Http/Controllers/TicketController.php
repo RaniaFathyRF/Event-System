@@ -101,7 +101,7 @@ class TicketController extends Controller
      *     )
      * )
      */
-    public function listData(TicketRequest $request)
+    public function listTickets(TicketRequest $request)
     {
         try {
             if (!Auth::user()->hasRole('admin')) {

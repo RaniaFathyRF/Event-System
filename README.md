@@ -1,66 +1,359 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Event System Installation Guide (Using Docker and Supervisor)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
 
-## About Laravel
+The **Event System** is a Laravel-based web application designed for efficient event management, including webhook processing, ticket synchronization, user authentication, and event workflows. This project incorporates **Filament Dashboard** for streamlined management and visualization.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Key Features
+- **Admin Dashboard** (Filament Panel): Manage tickets, users, and logs with CRUD functionality.
+- **Webhook Handling**: Processes incoming webhooks from Tito for syncing ticket and event data.
+- **Queue Processing**: Uses Laravel queues for background job handling.
+- **Event-Based Workflows**: Automates key tasks with the Laravel scheduler.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Architecture
 
-## Learning Laravel
+The system architecture follows modular design principles, as shown below:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```plaintext
++--------------+       +-------------+       +----------+
+| Admin/User   | ----> | Nginx       | ----> | Laravel  |
+| Interface    |       | Web Server  |       | Backend  |
++--------------+       +-------------+       +----+-----+
+                                                |
+                                                |
+                                        +-------v-------+
+                                        | MySQL Database |
+                                        +---------------+
+                                                               
+                                        +---------------+
+                                        | Redis Queue   |
+                                        +---------------+
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. **Frontend**: Admin dashboard and user interfaces provided by Filament and Laravel Blade and swagger documentation for APIS.
+2. **Backend**: Laravel handling ticketing APIs, webhooks, and workflows.
+3. **Database**: Stores tickets, users, and event log information.
+4. **Queue System**: Redis-backed queues for asynchronous job processing.
+5. **External API Integration**: Communicates with Tito for event and ticket data.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Prerequisites
 
-## Laravel Sponsors
+Before proceeding, ensure the following tools and dependencies are installed:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **System Requirements**
+    - Docker & Docker Compose
+    - Supervisor
+    - Node.js and npm (for building frontend assets)
+- **Laravel Prerequisites**
+    - PHP ≥ 8.2 via Docker
+    - Composer for dependency management
+    - MySQL ≥ 8.0 for persistence
 
-### Premium Partners
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## High-Level Integration Flow
 
-## Contributing
+Below is a visual representation of how the Tito API integrates with our Laravel-based Event System.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```plaintext
++---------------+                                 +-------------------+
+| Event System  |     Requests API Calls         |     Tito API      |
+| (Laravel App) +------------------------------->+ (tito.io/v3)      |
++---------------+                                 +-------------------+
+         ^                                                     |
+         |                                                     v
+         |                            Sends Tickets and Event Updates (Webhooks)
+         +<----------------------------------------------------+
+```
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+By following these steps, your Laravel application will be able to securely integrate with the Tito API for ticket management and webhook updates. If you encounter any issues, refer to the Laravel documentation or Tito’s official API guide.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Installation Steps
 
-## License
+### Step 1: Clone the Repository
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+git clone <repository-url>
+cd event-system
+```
+
+---
+
+### Step 2: Configure Environment Variables
+
+Copy and edit the `.env` file:
+
+```bash
+cp .env.example .env
+```
+
+Update the following configurations in `.env`:
+
+- **Database Configuration**:
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=mysql
+    DB_PORT=3306
+    DB_DATABASE=event_system
+    DB_USERNAME=root
+    DB_PASSWORD=root_password
+    ```
+- **APP Configuration**
+  ```
+    APP_ENV=local
+    APP_KEY=base64:fg81E9/m+/VCTY15CeI2rQRyj5zbkqbMhUI6oHxTwKA=
+    APP_DEBUG=true
+    APP_URL=https://localhost:8000
+    APP_LOCALE=en
+    APP_FALLBACK_LOCALE=en
+    APP_FAKER_LOCALE=en_US
+    APP_MAINTENANCE_DRIVER=file
+    PHP_CLI_SERVER_WORKERS=4
+    BCRYPT_ROUNDS=12
+    VITE_APP_NAME="${APP_NAME}"
+  ```
+- **Logs Configuration**
+    ```
+      LOG_CHANNEL=stack
+      LOG_STACK=single
+      LOG_DEPRECATIONS_CHANNEL=null
+      LOG_LEVEL=debug
+    ```
+- **Queue Configuration**
+    ```
+      BROADCAST_CONNECTION=log
+      FILESYSTEM_DISK=local
+      QUEUE_CONNECTION=database
+    ```
+- **Mail Configuration**
+    ```
+       MAIL_MAILER=smtp
+       MAIL_HOST=smtp.gmail.com  # Change this based on your provider
+       MAIL_PORT=587
+       MAIL_USERNAME=example@gmail.com
+       MAIL_PASSWORD={mail password}
+       MAIL_ENCRYPTION=tls
+       MAIL_FROM_ADDRESS=example@gmail.com
+       MAIL_FROM_NAME={app name}
+    ```
+
+- **Redis Configuration**
+  ```
+    CACHE_STORE=database
+    MEMCACHED_HOST=127.0.0.1
+    REDIS_CLIENT=phpredis
+    REDIS_HOST=127.0.0.1
+    REDIS_PASSWORD=null
+    REDIS_PORT=6379
+  ```
+- **Tito API Configuration**:
+  - **Tito Configuration**: To integrate Tito services with the Event System, you need to generate and securely store your API keys. Follow the instructions below to configure your Tito API token in the Laravel application.
+    - **Obtain Your API Key from Tito**
+        - Go to (https://id.tito.io/).
+        - Log in with your Tito account credentials.
+        - Navigate to **API Keys**.
+        - Generate a new **Personal Access Token**.
+        - Copy the generated access token (store it securely as it will not be shown again!).
+
+    - **Add API Credentials to Your `.env` File**
+        - Edit your application’s `.env` file and include the following variables:
+    - **TITO_API_KEY**: Paste the **API key/token** obtained from Tito Identity(https://id.tito.io/api-access-tokens).
+    - **TITO_API_ACCOUNT**: This is your Tito account’s slug.  
+      You can find it in your Tito dashboard URL. For example:  
+      If your dashboard URL is `https://your-account.tito.io`, use `your-account` for `TITO_API_ACCOUNT`.
+    - **TITO_API_EVENT**: Paste event slug from Tito dashboard URL.
+    - **TITO_WEBHOOK_SECRET**: Create new webhook endpoint from Settings > Webhook Endpoints
+      Copy your security token from there and paste it here.
+
+    ```
+       TITO_API_KEY=your_tito_api_token
+       TITO_API_BASE=https://api.tito.io/v3
+       TITO_API_ACCOUNT=your_tito_account_slug
+       TITO_API_EVENT=your_tito_event_slug
+       TITO_WEBHOOK_SECRET=your_webhook_secret_here
+    ```
+
+---
+
+### Step 3: Start Docker Containers
+
+Build and start the application containers:
+
+```bash
+docker-compose up -d
+```
+
+Verify your containers are running:
+
+```bash
+docker ps
+```
+
+You should see services like `app`, `mysql`, `nginx`, `schedule`, and `queues`.
+
+---
+
+### Step 4: Install Dependencies
+
+```bash
+docker exec -it <app-container> bash
+composer install
+php artisan key:generate
+exit
+```
+
+---
+
+### Step 5: Migrate and Seed the Database
+
+Run the following commands to set up the database schema and seed default application data:
+
+```bash
+docker exec -it <app-container> bash
+php artisan migrate --seed
+exit
+```
+
+---
+
+### Step 6: Set Up Queue Workers with Supervisor
+
+Queue processing is essential for handling webhooks and tickets asynchronously. Set up **Supervisor** to manage Laravel's queue workers.
+
+ 1.**Verify Worker Status**:
+
+   ```bash
+   docker exec -it <app-container> supervisorctl status
+   ```
+ 2.**Verify schedule logs**:
+
+   ```bash
+   docker-compose logs scheduler
+   docker logs <scheduler-container>
+   ```
+
+ 3.**Logs for worker activity can be found in**:
+   ```
+     /var/www/html/storage/logs/webhook-worker.log
+     /var/www/html/storage/logs/syncTickets-worker.log
+   ```
+
+---
+### Step 7: Sync Tickets from Tito API TO Laravel Database
+
+Run the following commands to sync tito tickets in laravel Database:
+
+```bash
+docker exec -it <app-container> bash
+php artisan sync:tickets
+exit
+```
+
+---
+### Step 8: Access the Application
+
+1. Access the application in your browser:
+
+    - **Frontend Swagger APIS Interface**: `http://localhost:8000/api/documentation#/`
+    - **Admin Dashboard: `http://localhost/admin/login`**
+
+      - **Log in with the seeded admin credentials**
+      
+           - **Super Admin User**: Grant access to all Tickets and Users with Cruds
+           ```bash
+             username: super_admin@example.com
+             password: password
+           ```
+      
+          - **Admin User**: Grant access to all Tickets with only Soft Delete
+          ```
+             username: admin@example.com
+             password: password
+          ```
+
+---
+
+### Architecture Diagram (UML Style)
+
+```plaintext
++-----------------+               +---------------------+               +----------------------+
+|   Admin Panel   |               |     Laravel App     |               |   Tito API/Webhooks  |
+| (Filament)      |               |  (PHP Backend)      |               | (3rd Party Service)  |
++-----------------+               +---------------------+               +----------------------+
+         |                                |                                    |
+         |                                |                                    |
+         +--------------------------------v------------------------------------+
+                                      +----------------+
+                                      |  Nginx/Redis   |
+                                      | (Load Balancer)|
+                                      +----------------+
+                                               |
+                                      +----------------+
+                                      |  MySQL DB       |
+                                      +----------------+
+```
+
+### Commands Cheat Sheet
+
+| Command                      | Description                  |
+|------------------------------|------------------------------|
+| `docker-compose up -d`       | Start the containers         |
+| `docker-compose down`        | Stop the containers          |
+| `docker exec -it app bash`   | Access Laravel container     |
+| `php artisan migrate --seed` | Run migrations and seed data |
+| `php artisan sync:tickets`   | Run command and sync Tickets |
+---
+
+### Troubleshooting
+
+#### Common Issues:
+
+1. **Database Connection Errors**:
+   Ensure `.env` configuration matches the Docker `mysql` container settings.
+
+2. **Queue Workers Not Processing**:
+    - Verify Supervisor is running:
+      ```bash
+      docker exec -it <app-container> supervisorctl status
+      ```
+    - Check logs:
+      ```bash
+      docker exec -it <app-container> tail -f /var/log/supervisord.log
+      ```
+
+3. **Webhook & Sync Tickets Not Working**:
+    - Check webhook log folder from here:
+      ```bash
+         /storage/logs/webhooks/*
+         /storage/logs/syncTickets/*
+      ```
+   - OR You can access logs from here:
+     ```bash
+        http://localhost:8000/log-viewer
+     ```
+
+4. **Rebuild Containers**:
+   To apply changes to configurations:
+   ```bash
+   docker-compose down
+   docker-compose up --build -d
+   ```
+
+---
+
+## System Summary
+
+| Component | Technology |
+| --- | --- |
+| Backend | Laravel (PHP 8.2) |
+| Database | MySQL |
+| Queue | Redis |
+| Scheduler & Worker | Laravel Scheduler + Supervisor |
+| Admin Panel | Filament Dashboard |
+| Third-Party APIs | Tito Integration |

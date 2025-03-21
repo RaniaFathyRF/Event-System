@@ -18,7 +18,7 @@ use \App\Http\Controllers\TitoWebhookController;
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->middleware(['timeout', 'throttle:6,1']);
 
 Route::middleware(['auth:sanctum', 'timeout', 'throttle:6,1'])->group(function () {
-    Route::get('/admin/tickets', [TicketController::class, 'listData']);
+    Route::get('/admin/tickets', [TicketController::class, 'listTickets']);
     Route::get('/admin/tickets/{ticketId}', [TicketController::class, 'showTicket']);
     Route::delete('/admin/tickets/{ticketId}', [TicketController::class, 'deleteTicket']);
     Route::post('/admin/logout', [AdminAuthController::class, 'logout']);
