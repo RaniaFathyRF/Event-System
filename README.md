@@ -177,7 +177,7 @@ Update the following configurations in `.env`:
     TITO_API_ACCOUNT=your_tito_account_slug
     TITO_API_EVENT=your_tito_event_slug
     TITO_WEBHOOK_SECRET=your_webhook_secret_here
-```
+  ```
 
 ---
 
