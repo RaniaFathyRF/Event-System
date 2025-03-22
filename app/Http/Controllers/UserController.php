@@ -11,6 +11,8 @@ use App\Models\User;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+
 
 /**
  * @OA\Tag(
@@ -129,7 +131,7 @@ class UserController extends Controller
 
             // If the ticket doesn't exist, return a 404 response
             if (!$ticket)
-                throw new NotFoundException();
+                throw new NotFoundHttpException();
 
             if ($ticket->user_id != Auth::id())
                 throw new AccessDeniedHttpException();

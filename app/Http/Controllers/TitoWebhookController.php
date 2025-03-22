@@ -66,7 +66,7 @@ class TitoWebhookController extends Controller
             Log::channel('webhook')->error("Tito Webhook Data is empty.");
             return false;
         }
-        $computedSignature = base64_encode(hash_hmac('sha256', $stringPayload, config('tito.webhookSecret'), true));
+        $computedSignature = base64_encode(hash_hmac('sha256', $stringPayload, env('TITO_WEBHOOK_SECRET'), true));
         if ($signature !== $computedSignature) {
             Log::channel('webhook')->warning("Invalid signature: {$signature}, computed: {$computedSignature}");
             return false;

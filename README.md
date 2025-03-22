@@ -239,12 +239,12 @@ Queue processing is essential for handling webhooks and tickets asynchronously. 
    ```
 
  3.**Logs for worker activity can be found in**:
+   ```bash
+   /var/www/html/storage/logs/webhook-worker.log
+   /var/www/html/storage/logs/syncTickets-worker.log
    ```
-     /var/www/html/storage/logs/webhook-worker.log
-     /var/www/html/storage/logs/syncTickets-worker.log
-   ```
-
 ---
+
 ### Step 7: Sync Tickets from Tito API TO Laravel Database
 
 Run the following commands to sync tito tickets in laravel Database:
@@ -260,7 +260,8 @@ exit
 
 1. Access the application in your browser:
 
-    - **Frontend Swagger APIS Interface**: `http://localhost:8000/api/documentation#/`
+    - **Frontend Swagger APIS Interface**: http://localhost:8000/api/documentation#/
+      -** Postman APIS Documentation**: https://documenter.getpostman.com/view/20126221/2sAYkHny68#1c14ac81-f3d5-4c47-b820-fa7dc146ba7d 
     - **Admin Dashboard: `http://localhost/admin/login`**
 
       - **Log in with the seeded admin credentials**

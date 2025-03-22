@@ -22,10 +22,10 @@ class TitoService
     public function __construct()
     {
         $this->titoEnv = [
-            'apiBase' => config('tito.apiBase'),
-            'apiKey' => config('tito.apiKey'),
-            'apiAccount' => config('tito.apiAccount'),
-            'apiEvent' => config('tito.apiEvent')
+            'apiBase' => env('TITO_API_BASE', 'https://api.tito.io/v3'),
+            'apiKey' => env('TITO_API_KEY'),
+            'apiAccount' => env('TITO_API_ACCOUNT'),
+            'apiEvent' => env('TITO_API_EVENT')
         ];
     }
 
@@ -50,10 +50,10 @@ class TitoService
                 throw new ValidationException($validator);
             }
             $query = !empty($query) ? '?' . implode('&', $query) : '';
-
+            $url = "{$this->titoEnv['apiBase']}/{$this->titoEnv['apiAccount']}/{$this->titoEnv['apiEvent']}/tickets{$query}";
             $response = Http::retry(3, 1000)->withHeaders([
                 'Authorization' => 'Bearer ' . $this->titoEnv['apiKey']
-            ])->get("{$this->titoEnv['apiBase']}/{$this->titoEnv['apiAccount']}/{$this->titoEnv['apiEvent']}/tickets{$query}}");
+            ])->get($url);
 
             if ($response->successful())
                 return $response->json();
@@ -84,10 +84,10 @@ class TitoService
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
-
+            $url = "{$this->titoEnv['apiBase']}/{$this->titoEnv['apiAccount']}/{$this->titoEnv['apiEvent']}/tickets?search[q]={$email}";
             $response = Http::retry(3, 1000)->withHeaders([
                 'Authorization' => 'Bearer ' . $this->titoEnv['apiKey']
-            ])->get("{$this->titoEnv['apiBase']}/{$this->titoEnv['apiAccount']}/{$this->titoEnv['apiEvent']}/tickets?search[q]={$email}}");
+            ])->get($url);
 
             if ($response->successful())
                 return $response->json();

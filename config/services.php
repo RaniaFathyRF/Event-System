@@ -35,12 +35,5 @@ return [
         ],
     ],
 
-    'tito' => [
-        'apiKey' => env('TITO_API_KEY'),
-        'apiBase' => env('TITO_API_BASE', 'https://api.tito.io/v3'),
-        'apiAccount' => env('TITO_API_ACCOUNT'),
-        'apiEvent' => env('TITO_API_EVENT'),
-        'webhookSecret' => env('TITO_WEBHOOK_SECRET'),
-    ]
 
 ];
