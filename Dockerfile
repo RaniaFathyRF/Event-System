@@ -20,9 +20,13 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy existing project files
 COPY . /var/www/html
 
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Set proper permissions for Laravel storage and cache directories
+RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache 
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache 
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/vendor
+RUN chmod -R 755 /var/www/html/vendor
 
 # Install Laravel dependencies
 RUN composer install --no-dev --prefer-dist

@@ -38,9 +38,10 @@ class UserTicketUtility
         $user = User::where(['email' => $email])->first();
         if ($user)
             return $user;
-
-        $user = User::Create(['email' => $email], [
+        Log::channel($logChannel)->info('name: ' . $name);
+        $user = User::Create([
             'name' => $name,
+            'email'=>$email,
             'phone' => $phone,
             'password' => Hash::make(Str::random(10)),
         ])->assignRole('user');
