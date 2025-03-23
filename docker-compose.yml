@@ -6,6 +6,11 @@ services:
             dockerfile: Dockerfile
         container_name: laravel_app
         restart: unless-stopped
+        environment:
+                DB_HOST: db
+                DB_DATABASE: 'event_db'
+                DB_USERNAME: 'event_user'
+                DB_PASSWORD: 'event_pw'
         working_dir: /var/www/html
         volumes:
             - .:/var/www/html
@@ -36,10 +41,10 @@ services:
         container_name: laravel_db
         restart: unless-stopped
         environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: event_db
-            MYSQL_USER: event_user
-            MYSQL_PASSWORD: event_pw
+            MYSQL_ROOT_PASSWORD: 'root'
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_PASSWORD}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
         ports:
             - "3306:3306"
         volumes:

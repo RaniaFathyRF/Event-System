@@ -22,14 +22,15 @@ COPY . /var/www/html
 
 
 # Set proper permissions for Laravel storage and cache directories
-RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache 
+RUN chown -R www-data:www-data /var/www/html
+RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chown -R www-data:www-data /var/www/html/vendor
-RUN chmod -R 755 /var/www/html/vendor
+
 
 # Install Laravel dependencies
 RUN composer install --no-dev --prefer-dist
+
 
 # Create Supervisor configuration directory
 RUN mkdir -p /etc/supervisor/conf.d
