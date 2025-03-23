@@ -42,9 +42,9 @@ services:
         restart: unless-stopped
         environment:
             MYSQL_ROOT_PASSWORD: 'root'
-            MYSQL_DATABASE: '${DB_DATABASE}'
-            MYSQL_USER: '${DB_PASSWORD}'
-            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_DATABASE: 'event_db'
+            MYSQL_USER: 'event_user'
+            MYSQL_PASSWORD: 'event_pw'
         ports:
             - "3306:3306"
         volumes:
